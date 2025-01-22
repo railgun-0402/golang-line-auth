@@ -1,7 +1,6 @@
 package main
 
 import (
-	"io"
 	"log"
 	"net/http"
 	"net/url"
@@ -12,12 +11,14 @@ import (
 const (
 	clientID = ""
 	redirectURI = ""
-	leinAuthURL = ""
+	lineAuthURL = ""
 )
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("start redirect...")
+
 	// 認証URLの構築
-	authURL, _ := url.Parse(leinAuthURL)
+	authURL, _ := url.Parse(lineAuthURL)
 	query := authURL.Query()
 	query.Set("response_type", "code")
 	query.Set("client_id", clientID)
@@ -28,14 +29,12 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
 	// redirect
 	http.Redirect(w, r, authURL.String(), http.StatusFound)
+
+	log.Println("end redirect...")
 }
 
 func main() {
-	helloHandler := func(w http.ResponseWriter, req *http.Request) {
-		io.WriteString(w, "Start Line Auth\n")
-	}
-
-	http.HandleFunc("/", helloHandler)
+	http.HandleFunc("/login", loginHandler)
 
 	log.Println("Server Start at Port 8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
